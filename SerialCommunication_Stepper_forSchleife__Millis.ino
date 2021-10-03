@@ -3,9 +3,9 @@
 const byte numChars = 32;
 char receivedChars[numChars];
 char tempChars[numChars];
-int integerFromPC_1;
-int integerFromPC_2;
-int integerFromPC_3;
+int onoff;  //decides motor status
+int spd;  //motorspeed in RPM
+int steps; //steps taken
 boolean newData = false;
 //boolean motorRunning = false;
 
@@ -44,7 +44,7 @@ void loop() {
     strcpy(tempChars, receivedChars);
     parseData();
     showParsedData();
-    if (integerFromPC_1 == 1) {
+    if (onoff == 1) {
       for (int n = 0; n <= 3; n++) {
         Serial.println("Motor Start");
         unsigned long Timer = millis();
@@ -64,8 +64,8 @@ void loop() {
 //=================
 
 void MotorRun() {
-  stepper1.setSpeed(integerFromPC_2);
-  stepper1.step(integerFromPC_3);
+  stepper1.setSpeed(spd);
+  stepper1.step(steps);
 }
 
 //====================
@@ -109,21 +109,21 @@ void parseData() {      // split the data into its parts
   char * strtokIndx; // this is used by strtok() as an index
 
   strtokIndx = strtok(tempChars, ",");    // get the first part - the string
-  integerFromPC_1 = atoi(strtokIndx); // copy it to messageFromPC
+  onoff = atoi(strtokIndx); // copy it to messageFromPC
 
   strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
-  integerFromPC_2 = atoi(strtokIndx);     // convert this part to an integer
+  spd = atoi(strtokIndx);     // convert this part to an integer
 
   strtokIndx = strtok(NULL, ",");
-  integerFromPC_3 = atoi(strtokIndx);     // convert this part to a float
+  steps = atoi(strtokIndx);     // convert this part to a float
 
 }
 
 void showParsedData() {
   Serial.print("Message ");
-  Serial.println(integerFromPC_1);
+  Serial.println(onoff);
   Serial.print("STEPS ");
-  Serial.println(integerFromPC_2);
+  Serial.println(spd);
   Serial.print("Speed ");
-  Serial.println(integerFromPC_3);
+  Serial.println(steps);
 }

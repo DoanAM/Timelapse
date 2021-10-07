@@ -24,7 +24,7 @@ Stepper stepper1(STEPS_PER_REV, motorPin1, motorPin3, motorPin2, motorPin4);
 
 
 
-
+int intervalCount; //How many intervals arduino should make
 const long interval = 1000; //interval at which to pause
 unsigned long prevTime = 0;
 
@@ -45,14 +45,17 @@ void loop() {
     parseData();
     showParsedData();
     if (onoff == 1) {
-      for (int n = 0; n <= 3; n++) {
+      if (intervalCount < 4)
+      {
         Serial.println("Motor Start");
         unsigned long Timer = millis();
-        if (Timer - prevTime >= interval) {
+        if (Timer- prevTime >= interval) {
           MotorRun();
-          prevTime = Timer;
+          prevTime = millis();
+          intervalCount++;
         }
       }
+      
     }
     else {
       Serial.println ("FALSE INPUT");

@@ -30,16 +30,7 @@ void loop() {
     parseData();
     showParsedData();
     if (onoff == 1){
-        unsigned long Timer = millis();
-        if (Timer -prevTime >= interval){
-            prevTime = Timer;
-            if (ledOn == true) {
-                TurnLedOff();
-            }
-            else {
-                TurnLedOn();
-            }
-        }
+        TurnLedOn();
     }
     if (onoff == 0){
         TurnLedOff();

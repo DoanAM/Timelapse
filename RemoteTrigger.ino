@@ -15,7 +15,7 @@ boolean RelayOn = false;
 //======================
 
 void setup() {
-  pinMode(7, OUTPUT); //Relay Pin
+  pinMode(13, OUTPUT); //Relay Pin
   Serial.begin(9600);
   Serial.println("<Arduino is ready>");
   Serial.println("Enter data in this style <1, 300, 400>  ");

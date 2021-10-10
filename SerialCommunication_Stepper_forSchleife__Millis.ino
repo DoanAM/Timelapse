@@ -45,15 +45,12 @@ void loop() {
     parseData();
     showParsedData();
     if (onoff == 1) {
-      if (intervalCount < 4)
+      for(int intervalCount = 0; intervalCount <3; intervalCount++)
       {
         Serial.println("Motor Start");
         unsigned long Timer = millis();
-        if (Timer- prevTime >= interval) {
-          MotorRun();
-          prevTime = millis();
-          intervalCount++;
-        }
+        MotorRun();
+        delay(interval);        
       }
       
     }

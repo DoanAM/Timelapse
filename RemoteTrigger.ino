@@ -10,12 +10,12 @@ boolean newData = false;
 
 const long interval = 1000; //interval at which to pause
 unsigned long prevTime = 0;
-boolean ledOn = false;
+boolean RelayOn = false;
 
 //======================
 
 void setup() {
-  pinMode(7, OUTPUT); 
+  pinMode(7, OUTPUT); //Relay Pin
   Serial.begin(9600);
   Serial.println("<Arduino is ready>");
   Serial.println("Enter data in this style <1, 300, 400>  ");
@@ -30,10 +30,10 @@ void loop() {
     parseData();
     showParsedData();
     if (onoff == 1){
-        TurnLedOn();
+        TurnRelayOn();
     }
     if (onoff == 0){
-        TurnLedOff();
+        TurnRelayOff();
     }
     newData = false;
   }
@@ -41,18 +41,18 @@ void loop() {
 
 //=================
 
-void TurnLedOn() {
+void TurnRelayOn() {
     digitalWrite(13,HIGH);
     Serial.println("LED ON");
-    boolean ledOn = true;
+    boolean RelayOn = true;
 }
 
 //=================
 
-void TurnLedOff() {
+void TurnRelayOff() {
     digitalWrite(13, LOW);
     Serial.println("LED OFF");
-    boolean ledOn = false;
+    boolean RelayOn = false;
 }
 
 //====================

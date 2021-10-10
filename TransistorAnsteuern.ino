@@ -32,7 +32,7 @@ unsigned long prevTime = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("<Arduino is ready>");
+  Serial.println("<Arduino_Transistor is ready>");
   Serial.println("Enter data in this style <1, 300, 400>  ");
   pinMode(7, OUTPUT);
 }

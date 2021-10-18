@@ -26,6 +26,7 @@ Stepper stepper1(STEPS_PER_REV, motorPin1, motorPin3, motorPin2, motorPin4);
 
 //int intervalCoun; //How many intervals arduino should make
 int expT; //Interval Auslöser
+int nrOfPics; //Number of Photos you want to take
 //unsigned long prevTime = 0;
 
 //===============
@@ -34,7 +35,7 @@ void setup() {
   pinMode(7, OUTPUT); //Definition pin Auslöser
   Serial.begin(9600);
   Serial.println("<Arduino is ready>");
-  Serial.println("Enter data in this style <ONOFF, stp, spd, expT> <1, 300, 400, 1000>  ");
+  Serial.println("Enter data in this style <ONOFF, stp, spd, expT, nrOfPics> <1, 300, 400, 1000, 5>  ");
 }
 
 //=============
@@ -46,7 +47,7 @@ void loop() {
     parseData();
     showParsedData();
     if (onoff == 1) {
-      for (int intervalCount = 0; intervalCount < 3; intervalCount++)
+      for (int i = 0; i < nrOfPics; i++)
       {
         Serial.println("Motor Start");
         unsigned long Timer = millis();
@@ -129,6 +130,9 @@ void parseData() {      // split the data into its parts
 
   strtokIndx = strtok(NULL, ",");
   expT = atoi(strtokIndx);
+
+  strtokIndx = strtok(NULL, ",");
+  nrOfPics = atoi(strtokIndx);
 }
 
 void showParsedData() {
@@ -140,4 +144,6 @@ void showParsedData() {
   Serial.println(steps);
   Serial.print("ExposureTime ");
   Serial.println(expT);
+  Serial.print("Number of Photos");
+  Serial.println(nrOfPics);
 }

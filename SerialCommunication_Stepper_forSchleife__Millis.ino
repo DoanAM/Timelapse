@@ -22,18 +22,19 @@ const float GEAR_RED = 64;
 const float STEPS_PER_OUT_REV = STEPS_PER_REV * GEAR_RED;
 Stepper stepper1(STEPS_PER_REV, motorPin1, motorPin3, motorPin2, motorPin4);
 
+//===============================
 
-
-int intervalCount; //How many intervals arduino should make
-const long interval = 1000; //interval at which to pause
-unsigned long prevTime = 0;
+//int intervalCoun; //How many intervals arduino should make
+int expT; //Interval Auslöser
+//unsigned long prevTime = 0;
 
 //===============
 
 void setup() {
+  pinMode(7, OUTPUT); //Definition pin Auslöser
   Serial.begin(9600);
   Serial.println("<Arduino is ready>");
-  Serial.println("Enter data in this style <1, 300, 400>  ");
+  Serial.println("Enter data in this style <ONOFF, stp, spd, expT> <1, 300, 400, 1000>  ");
 }
 
 //=============
@@ -45,14 +46,16 @@ void loop() {
     parseData();
     showParsedData();
     if (onoff == 1) {
-      for(int intervalCount = 0; intervalCount <3; intervalCount++)
+      for (int intervalCount = 0; intervalCount < 3; intervalCount++)
       {
         Serial.println("Motor Start");
         unsigned long Timer = millis();
         MotorRun();
-        delay(interval);        
+        delay(250);
+        FernausloeserBetaetigen();
+        delay(250);
       }
-      
+
     }
     else {
       Serial.println ("FALSE INPUT");
@@ -70,6 +73,13 @@ void MotorRun() {
 
 //====================
 
+void FernausloeserBetaetigen() {
+  digitalWrite(7, HIGH);
+  delay(expT); //Betätigungszeit
+  digitalWrite(7, LOW);
+}
+
+//====================
 void recvWithStartEndMarkers() {
   static boolean recvInProgress = false;
   static byte ndx = 0;
@@ -117,6 +127,8 @@ void parseData() {      // split the data into its parts
   strtokIndx = strtok(NULL, ",");
   steps = atoi(strtokIndx);     // convert this part to a float
 
+  strtokIndx = strtok(NULL, ",");
+  expT = atoi(strtokIndx);
 }
 
 void showParsedData() {
@@ -126,4 +138,6 @@ void showParsedData() {
   Serial.println(spd);
   Serial.print("Speed ");
   Serial.println(steps);
+  Serial.print("ExposureTime ");
+  Serial.println(expT);
 }

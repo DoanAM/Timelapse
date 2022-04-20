@@ -1,4 +1,4 @@
-#include <Stepper.h>
+#include <AccelStepper.h>
 
 const byte numChars = 32;
 char receivedChars[numChars];
@@ -7,6 +7,8 @@ int onoff;  //decides motor status
 int spd;  //motorspeed in RPM
 int steps; //steps taken
 boolean newData = false;
+char CancelText;
+boolean CancelOperation = false;
 //boolean motorRunning = false;
 
 
@@ -17,25 +19,23 @@ boolean newData = false;
 #define motorPin2 9
 #define motorPin3 10
 #define motorPin4 11
-const float STEPS_PER_REV = 32;
-const float GEAR_RED = 64;
-const float STEPS_PER_OUT_REV = STEPS_PER_REV * GEAR_RED;
-Stepper stepper1(STEPS_PER_REV, motorPin1, motorPin3, motorPin2, motorPin4);
+AccelStepper stepper1(4, motorPin1, motorPin3, motorPin2, motorPin4);
 
 //===============================
 
 //int intervalCoun; //How many intervals arduino should make
 int expT; //Interval Auslöser
 int nrOfPics; //Number of Photos you want to take
-//unsigned long prevTime = 0;
+unsigned long myTime = 0;
 
 //===============
 
 void setup() {
   pinMode(7, OUTPUT); //Definition pin Auslöser
+  pinMode(2, INPUT); //Definition pin Button
   Serial.begin(9600);
-  Serial.println("<Arduino is ready>");
-  Serial.println("Enter data in this style <ONOFF, stp, spd, expT, nrOfPics> <1, 300, 400, 1000, 5>  ");
+  Serial.println("<Arduino is ready v0.00>");
+  Serial.println("Enter data in this style <ONOFF, spd, steps, expT, nrOfPics> <1, 200, 200, 1000, 4>  ");
 }
 
 //=============
@@ -49,11 +49,16 @@ void loop() {
     if (onoff == 1) {
       for (int i = 0; i < nrOfPics; i++)
       {
+        if (CancelOperation == true) {
+          break;
+        }
         Serial.println("Motor Start");
-        unsigned long Timer = millis();
-        MotorRun();
-        delay(250);
         FernausloeserBetaetigen();
+        delay(250);
+        if (CancelOperation == true) {
+          break;
+        }
+        MotorRun();
         delay(250);
       }
 
@@ -61,23 +66,57 @@ void loop() {
     else {
       Serial.println ("FALSE INPUT");
     }
+    stepper1.disableOutputs();
+    CancelOperation = false;
     newData = false;
+    Serial.println("Done");
   }
 }
 
-//=================
+
+//================
 
 void MotorRun() {
-  stepper1.setSpeed(spd);
-  stepper1.step(steps);
+  stepper1.enableOutputs();
+  stepper1.setMaxSpeed(spd);
+  stepper1.setAcceleration(50.0);
+  stepper1.moveTo(steps);
+  stepper1.run();
+  while (stepper1.run() == true) {
+    if (Serial.available() > 0) {
+      CancelText = Serial.read();
+      if(CancelText == 'a') {
+        Serial.println("Cancel Motor");
+        CancelOperation = true;
+        stepper1.stop();
+        break;
+      }
+    }
+  }
+  stepper1.setCurrentPosition(0);
+  stepper1.disableOutputs();
+  Serial.println("Motor is not running");
 }
 
 //====================
 
 void FernausloeserBetaetigen() {
-  digitalWrite(7, HIGH);
-  delay(expT); //Betätigungszeit
+  myTime = millis();
+  Serial.println("Photo Start");
+  while (millis() < myTime + expT) {
+    digitalWrite(7, HIGH);    
+    if (Serial.available() > 0) {
+      CancelText = Serial.read();
+      if(CancelText == 'a') {
+        Serial.println("Cancel Photo");
+        CancelOperation = true;   
+        digitalWrite(7, LOW);     
+        break;
+      }
+    }
+  }
   digitalWrite(7, LOW);
+  Serial.println("Photo Ende");
 }
 
 //====================
@@ -138,9 +177,9 @@ void parseData() {      // split the data into its parts
 void showParsedData() {
   Serial.print("Message ");
   Serial.println(onoff);
-  Serial.print("STEPS ");
+  Serial.print("SPEED");
   Serial.println(spd);
-  Serial.print("Speed ");
+  Serial.print("STEPS");
   Serial.println(steps);
   Serial.print("ExposureTime ");
   Serial.println(expT);
